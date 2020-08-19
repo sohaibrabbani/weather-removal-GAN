@@ -179,16 +179,35 @@ class DerainDataProducer(object):
 
             :return:
             """
+            # Adding all the images of each category in their corresponding folders - Sohaib
+            raindrops_info = []
+            rainstreaks_info = []
+            hazy_info = []
+            foggy_info = []
+            daynight_info = []
+            sandstorm_info = []
             _info = []
-            for _rain_image_path in glob.glob('{:s}/*.png'.format(self._rain_image_dir)):
+            # print(self._rain_image_dir)
+            for _rain_image_path in glob.glob('{:s}/*.*'.format(self._rain_image_dir)):
                 _clean_image_name = ops.split(_rain_image_path)[1].replace('rain', 'clean')
                 _clean_image_path = ops.join(self._clean_image_dir, _clean_image_name)
 
                 assert ops.exists(_clean_image_path), '{:s} not exist'.format(_clean_image_path)
+                filename = _rain_image_path.split('/')[-1]
+                if "rain" in filename:
+                    raindrops_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
+                elif "streak" in filename:
+                    rainstreaks_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
+                elif "fog" in filename:
+                    foggy_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
+                elif "daynight" in filename:
+                    daynight_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
+                elif "haze" in filename:
+                    sandstorm_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
+                else:
+                    hazy_info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
 
-                _info.append('{:s} {:s}\n'.format(_rain_image_path, _clean_image_path))
-
-            return _info
+            return raindrops_info, rainstreaks_info, hazy_info, foggy_info, daynight_info, sandstorm_info
 
         def _split_training_examples(_example_info):
 
@@ -202,7 +221,18 @@ class DerainDataProducer(object):
 
             return _train_example_info, _test_example_info, _val_example_info
 
-        train_example_info, test_example_info, val_example_info = _split_training_examples(_gather_example_info())
+        raindrops_info, rainstreaks_info, hazy_info, foggy_info, daynight_info, sandstorm_info = _gather_example_info()
+        # Adding equal number of images of each category in the "training", "testing" and "validation" set
+        train_raindrop_info, test_raindrop_info, val_raindrop_info = _split_training_examples(raindrops_info)
+        train_rainstreaks_info, test_rainstreaks_info, val_rainstreaks_info = _split_training_examples(rainstreaks_info)
+        train_hazy_info, test_hazy_info, val_hazy_info = _split_training_examples(hazy_info)
+        train_foggy_info, test_foggy_info, val_foggy_info = _split_training_examples(foggy_info)
+        train_daynight_info, test_daynight_info, val_daynight_info = _split_training_examples(daynight_info)
+        train_sandstorm_info, test_sandstorm_info, val_sandstorm_info = _split_training_examples(sandstorm_info)
+
+        train_example_info = train_raindrop_info + train_rainstreaks_info + train_hazy_info + train_foggy_info + train_daynight_info + train_sandstorm_info
+        test_example_info = test_raindrop_info + test_rainstreaks_info + test_hazy_info + test_foggy_info + test_daynight_info + test_sandstorm_info
+        val_example_info = val_raindrop_info + val_rainstreaks_info + val_hazy_info + val_foggy_info + val_daynight_info + val_sandstorm_info
 
         random.shuffle(train_example_info)
         random.shuffle(test_example_info)

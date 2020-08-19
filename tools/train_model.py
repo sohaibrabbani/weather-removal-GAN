@@ -259,7 +259,7 @@ def train_model(dataset_dir, weights_path=None):
             saver.restore(sess=sess, save_path=weights_path)
 
         # 加载预训练参数
-        pretrained_weights = np.load('./data/vgg16.npy', encoding='latin1').item()
+        pretrained_weights = np.load('/home/deep/PycharmProjects/weather-removal-GAN/data/vgg16.npy', encoding='latin1').item()
 
         for vv in vgg_vars:
             weights_key = vv.name.split('/')[-3]
@@ -324,4 +324,5 @@ if __name__ == '__main__':
     args = init_args()
 
     # train model
-    train_model(args.dataset_dir, weights_path=args.weights_path)
+    # train_model(args.dataset_dir, weights_path=args.weights_path)
+    train_model("/home/deep/PycharmProjects/weather-removal-GAN/train/", weights_path=args.weights_path)
